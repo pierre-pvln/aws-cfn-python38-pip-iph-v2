@@ -1,0 +1,547 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Metadata": {},
+    "Parameters": {
+        "IPHPY38PIPTemplateVersion": {
+            "Type": "String",
+            "Default": "v002",
+            "MinLength": "4",
+            "MaxLength": "4",
+            "Description": "Enter version number of template vXXX"
+        },
+        "IPHPY38PIPServerPrivateIP": {
+            "Description": "Private IP adress for server",
+            "Default": "10.0.1.5",
+            "Type": "String",
+            "ConstraintDescription": "Must be a valid private IP adresss in 10.0.1.0/24 range."
+        },
+        "IPHPY38PIPKeyName": {
+            "Description": "Name of an existing EC2 KeyPair",
+            "Default": "aisdata-reporting",
+            "Type": "AWS::EC2::KeyPair::KeyName",
+            "ConstraintDescription": "Must be the name of an existing EC2 KeyPair."
+        },
+        "IPHPY38PIPInstanceType": {
+            "Description": "Amazon EC2 instance type",
+            "Type": "String",
+            "Default": "t2.micro",
+            "AllowedValues": [
+                "t1.micro",
+                "t2.micro",
+                "t2.small",
+                "t2.medium",
+                "m1.small",
+                "m1.medium",
+                "m1.large",
+                "m1.xlarge",
+                "m2.xlarge",
+                "m2.2xlarge",
+                "m2.4xlarge",
+                "m3.medium",
+                "m3.large",
+                "m3.xlarge",
+                "m3.2xlarge",
+                "m4.large",
+                "m4.xlarge",
+                "m4.2xlarge",
+                "m4.4xlarge",
+                "m4.10xlarge",
+                "c1.medium",
+                "c1.xlarge",
+                "c3.large",
+                "c3.xlarge",
+                "c3.2xlarge",
+                "c3.4xlarge",
+                "c3.8xlarge",
+                "c4.large",
+                "c4.xlarge",
+                "c4.2xlarge",
+                "c4.4xlarge",
+                "c4.8xlarge",
+                "g2.2xlarge",
+                "r3.large",
+                "r3.xlarge",
+                "r3.2xlarge",
+                "r3.4xlarge",
+                "r3.8xlarge",
+                "i2.xlarge",
+                "i2.2xlarge",
+                "i2.4xlarge",
+                "i2.8xlarge",
+                "d2.xlarge",
+                "d2.2xlarge",
+                "d2.4xlarge",
+                "d2.8xlarge",
+                "hi1.4xlarge",
+                "hs1.8xlarge",
+                "cr1.8xlarge",
+                "cc2.8xlarge",
+                "cg1.4xlarge"
+            ],
+            "ConstraintDescription": "must be a valid EC2 instance type."
+        },
+        "IPHPY38PIPENVAWSProfileName": {
+            "Type": "String",
+            "Default": "",
+            "Description": "Local AWS profile name to use for authentication and authorization"
+        },
+        "IPHPY38PIPAWSjsonBucketName": {
+            "Type": "String",
+            "Default": "ais-datasets-json",
+            "Description": "S3 bucket name with json input files"
+        },
+        "IPHPY38PIPAWScsvBucketName": {
+            "Type": "String",
+            "Default": "ais-datasets-csv",
+            "Description": "S3 bucket name with csv output files"
+        },
+        "IPHPY38PIPAWSpolygonsBucketName": {
+            "Type": "String",
+            "Default": "ais-datasets-polygons",
+            "Description": "S3 bucket name with polygon input files"
+        },
+        "IPHPY38PIPENVAWSSettingsBucketName": {
+            "Type": "String",
+            "Default": "",
+            "Description": "S3 bucket name with settings"
+        },
+        "IPHPY38PIPENVAWSSettingsPrefixFilename": {
+            "Type": "String",
+            "Default": "settings/settings.json",
+            "Description": "Settings filename including prefix/path in S3 bucket"
+        },
+        "IPHPY38PIPENVAPPDateType": {
+            "Type": "String",
+            "Default": "leading0",
+            "AllowedValues": ["leading0", "no0"],
+            "Description": "no0 = no leading zero; or leading0"
+        }
+    },
+    "Resources": {
+        "IPHPY38PIPRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "Tags": [{
+                        "Key": "Name",
+                        "Value": "IPHPY38PIP_Role"
+                    },
+                    {
+                        "Key": "Version",
+                        "Value": {
+                            "Ref": "IPHPY38PIPTemplateVersion"
+                        }
+                    }
+                ],
+                "AssumeRolePolicyDocument": {
+                    "Statement": [{
+                        "Effect": "Allow",
+                        "Principal": {
+                            "Service": ["ec2.amazonaws.com"]
+                        },
+                        "Action": ["sts:AssumeRole"]
+                    }]
+                },
+                "Path": "/",
+				"ManagedPolicyArns": [
+					"arn:aws:iam::aws:policy/AWSCodeCommitPowerUser"
+				]
+            },
+            "Metadata": {
+                "Comment": "Role die gekoppeld wordt aan EC2 instance"
+            }
+        },
+        "IPHPY38PIPPolicies": {
+            "Type": "AWS::IAM::Policy",
+            "Properties": {
+                "PolicyName": "IPHPY38PIPS3access4JSON2CSV",
+                "PolicyDocument": {
+                    "Statement": [{
+                            "Effect": "Allow",
+                            "Action": [
+                                "s3:ListBucket"
+                            ],
+                            "Resource": [
+                                { "Fn::Sub": "arn:aws:s3:::${IPHPY38PIPAWSjsonBucketName}" },
+                                { "Fn::Sub": "arn:aws:s3:::${IPHPY38PIPAWScsvBucketName}" },
+                                { "Fn::Sub": "arn:aws:s3:::${IPHPY38PIPAWSpolygonsBucketName}" },
+								"arn:aws:s3:::iph-code-repository/json-to-csv/*"
+                            ]
+                        },
+                        {
+                            "Effect": "Allow",
+                            "Action": [
+                                "s3:GetObject"
+                            ],
+                            "Resource": [
+                                { "Fn::Sub": "arn:aws:s3:::${IPHPY38PIPAWSjsonBucketName}/*" },
+                                { "Fn::Sub": "arn:aws:s3:::${IPHPY38PIPAWScsvBucketName}/*" },
+                                { "Fn::Sub": "arn:aws:s3:::${IPHPY38PIPAWSpolygonsBucketName}/*" },
+								"arn:aws:s3:::iph-code-repository/json-to-csv/*"
+                            ]
+                        },
+                        {
+                            "Effect": "Allow",
+                            "Action": [
+                                "s3:PutObject"
+                            ],
+                            "Resource": [
+                                { "Fn::Sub": "arn:aws:s3:::${IPHPY38PIPAWScsvBucketName}/*" }
+                            ]
+                        }
+                    ]
+                },
+                "Roles": [{ "Ref": "IPHPY38PIPRole" }]
+            }
+        },
+        "IPHPY38PIPInstanceProfile": {
+            "Type": "AWS::IAM::InstanceProfile",
+            "Properties": {
+                "Path": "/",
+                "Roles": [{ "Ref": "IPHPY38PIPRole" }]
+            }
+        },
+        "IPHPY38PIPMainVPC": {
+            "Type": "AWS::EC2::VPC",
+            "Properties": {
+                "Tags": [{
+                        "Key": "Name",
+                        "Value": "IPHPY38PIP_MainVPC"
+                    },
+                    {
+                        "Key": "Version",
+                        "Value": {
+                            "Ref": "IPHPY38PIPTemplateVersion"
+                        }
+                    }
+                ],
+                "EnableDnsSupport": "true",
+                "EnableDnsHostnames": "true",
+                "CidrBlock": "10.0.0.0/16",
+                "InstanceTenancy": "default"
+            },
+            "Metadata": {
+                "Comment": "VPC container waar alles in komt"
+            }
+        },
+        "IPHPY38PIPLinuxSubnet": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "Tags": [{
+                        "Key": "Name",
+                        "Value": "IPHPY38PIP_LinuxSubnet"
+                    },
+                    {
+                        "Key": "Version",
+                        "Value": {
+                            "Ref": "IPHPY38PIPTemplateVersion"
+                        }
+                    }
+                ],
+                "CidrBlock": "10.0.1.0/24",
+                "VpcId": {
+                    "Ref": "IPHPY38PIPMainVPC"
+                }
+            },
+            "Metadata": {
+                "Comment": "Linux Subnet, with access to Internet"
+            }
+        },
+        "IPHPY38PIPLinuxServer": {
+            "Type": "AWS::EC2::Instance",
+            "Metadata": {
+                "Comment": "The server in the linux subnet"
+            },
+            "DependsOn": [
+                "IPHPY38PIPLinuxRouteTable"
+            ],
+            "Properties": {
+                "Tags": [{
+                        "Key": "Name",
+                        "Value": "IPHPY38PIP_LinuxServer"
+                    },
+                    {
+                        "Key": "Version",
+                        "Value": {
+                            "Ref": "IPHPY38PIPTemplateVersion"
+                        }
+                    }
+                ],
+                "InstanceType": {
+                    "Ref": "IPHPY38PIPInstanceType"
+                },
+                "KeyName": {
+                    "Ref": "IPHPY38PIPKeyName"
+                },
+                "IamInstanceProfile": { "Ref": "IPHPY38PIPInstanceProfile" },
+                "ImageId": "ami-0b90a8636b6f955c1",
+                "UserData": {
+                    "Fn::Base64": {
+                        "Fn::Join": [
+                            "", [
+                                "#!/bin/bash -xe\n",
+                                "touch /home/ubuntu/$( date '+%Y-%m-%d_%H-%M-%S' )_start_of_UserData\n",
+                                "#setting environment variables\n",
+                                { "Fn::Sub": "AWS_PROFILE_NAME=${IPHPY38PIPENVAWSProfileName}\n" },
+                                { "Fn::Sub": "AWS_SETTINGS_BUCKET=${IPHPY38PIPENVAWSSettingsBucketName}\n" },
+                                { "Fn::Sub": "AWS_SETTINGS_PATH=${IPHPY38PIPENVAWSSettingsPrefixFilename}\n" },
+                                { "Fn::Sub": "APP_DATE_TYPE=${IPHPY38PIPENVAPPDateType}\n" },
+                                "echo \"AWS_PROFILE_NAME=$AWS_PROFILE_NAME\" >>/etc/environment\n",
+                                "echo \"AWS_SETTINGS_BUCKET=$AWS_SETTINGS_BUCKET\" >>/etc/environment\n",
+                                "echo \"AWS_SETTINGS_PATH=$AWS_SETTINGS_PATH\" >>/etc/environment\n",
+                                "echo \"APP_DATE_TYPE=$APP_DATE_TYPE\" >>/etc/environment\n",
+								"#get packages and install\n",
+                                "sudo apt-get update\n",
+                                "sudo apt-get upgrade -y\n",
+                                "sudo apt-get install awscli jq -y\n",
+								"aws 
+                                "#get json file, only fileContent part, remove quotes, decode base64 and save\n",
+                                "aws codecommit get-file --repository-name aws-cfn-iphpy38-pip --file-path install-IPHPY38PIP-boiler.sh --region eu-central-1 | jq .fileContent | tr -d '\"'| base64 --decode >/home/ubuntu/install.sh\n",
+                                "chmod +x /home/ubuntu/*.sh\n",
+                                "/home/ubuntu/install.sh\n",
+                                "chown -R ubuntu:ubuntu /home/ubuntu/\n",
+                                "touch /home/ubuntu/$( date '+%Y-%m-%d_%H-%M-%S' )_end_of_UserData\n"
+                            ]
+                        ]
+                    }
+                },
+                "NetworkInterfaces": [{
+                    "DeviceIndex": "0",
+                    "Description": "Primary network interface",
+                    "SubnetId": {
+                        "Ref": "IPHPY38PIPLinuxSubnet"
+                    },
+                    "PrivateIpAddress": {
+                        "Ref": "IPHPY38PIPServerPrivateIP"
+                    },
+                    "AssociatePublicIpAddress": "true",
+                    "GroupSet": [{
+                            "Ref": "IPHPY38PIPLinuxBaselineSecurityGroup"
+                        },
+                        {
+                            "Ref": "IPHPY38PIPDebugSecurityGroup"
+                        }
+                    ]
+                }]
+            }
+        },
+        "IPHPY38PIPLinuxBaselineSecurityGroup": {
+            "Type": "AWS::EC2::SecurityGroup",
+            "Properties": {
+                "Tags": [{
+                        "Key": "Name",
+                        "Value": "IPHPY38PIP_LinuxBaselineSecurityGroup"
+                    },
+                    {
+                        "Key": "Version",
+                        "Value": {
+                            "Ref": "IPHPY38PIPTemplateVersion"
+                        }
+                    }
+                ],
+                "GroupDescription": "Enable SSH access",
+                "GroupName": "IPHPY38PIP_LinuxBaseline",
+                "SecurityGroupIngress": [{
+                    "IpProtocol": "tcp",
+                    "FromPort": "22",
+                    "ToPort": "22",
+                    "CidrIp": "86.81.35.18/32",
+                    "Description": "SSH direct from homenetwork"
+                }],
+                "VpcId": {
+                    "Ref": "IPHPY38PIPMainVPC"
+                }
+            },
+            "Metadata": {
+                "Comment": "Security group baseline for Linux instances"
+            }
+        },
+        "IPHPY38PIPDebugSecurityGroup": {
+            "Type": "AWS::EC2::SecurityGroup",
+            "Properties": {
+                "Tags": [{
+                        "Key": "Name",
+                        "Value": "IPHPY38PIP_DebugSecurityGroup"
+                    },
+                    {
+                        "Key": "Version",
+                        "Value": {
+                            "Ref": "IPHPY38PIPTemplateVersion"
+                        }
+                    }
+                ],
+                "GroupDescription": "Debug all",
+                "GroupName": "IPHPY38PIP_Debug",
+                "SecurityGroupIngress": [{
+                        "IpProtocol": -1,
+                        "FromPort": -1,
+                        "ToPort": -1,
+                        "CidrIp": "10.0.0.0/8",
+                        "Description": "From within VPCs / private IP ranges"
+                    },
+                    {
+                        "IpProtocol": -1,
+                        "FromPort": -1,
+                        "ToPort": -1,
+                        "CidrIp": "172.16.0.0/12",
+                        "Description": "From within VPCs / private IP ranges"
+                    },
+                    {
+                        "IpProtocol": -1,
+                        "FromPort": -1,
+                        "ToPort": -1,
+                        "CidrIp": "192.168.0.0/16",
+                        "Description": "From within VPCs / private IP ranges"
+                    }
+                ],
+                "VpcId": {
+                    "Ref": "IPHPY38PIPMainVPC"
+                }
+            },
+            "Metadata": {
+                "Comment": "Security group baseline for debug purposes"
+            }
+        },
+        "IPHPY38PIPLinuxRouteTable": {
+            "Type": "AWS::EC2::RouteTable",
+            "DependsOn": [
+                "IPHPY38PIPInetgw",
+                "IPHPY38PIPLinuxSubnet"
+            ],
+            "Properties": {
+                "Tags": [{
+                        "Key": "Name",
+                        "Value": "IPHPY38PIP_LinuxRouteTable"
+                    },
+                    {
+                        "Key": "Version",
+                        "Value": {
+                            "Ref": "IPHPY38PIPTemplateVersion"
+                        }
+                    }
+                ],
+                "VpcId": {
+                    "Ref": "IPHPY38PIPMainVPC"
+                }
+            },
+            "Metadata": {
+                "Comment": "Basic route table for Linux Subnet"
+            }
+        },
+        "IPHPY38PIPLinuxRouteToInternet": {
+            "Type": "AWS::EC2::Route",
+            "DependsOn": [
+                "IPHPY38PIPInetgw",
+                "IPHPY38PIPLinuxSubnet"
+            ],
+            "Properties": {
+                "RouteTableId": {
+                    "Ref": "IPHPY38PIPLinuxRouteTable"
+                },
+                "DestinationCidrBlock": "0.0.0.0/0",
+                "GatewayId": {
+                    "Ref": "IPHPY38PIPInetgw"
+                }
+            },
+            "Metadata": {
+                "Comment": "Route to internet from Linux"
+            }
+        },
+        "IPHPY38PIPInetgw": {
+            "Type": "AWS::EC2::InternetGateway",
+            "Properties": {
+                "Tags": [{
+                        "Key": "Name",
+                        "Value": "IPHPY38PIP_Inetgw"
+                    },
+                    {
+                        "Key": "Version",
+                        "Value": {
+                            "Ref": "IPHPY38PIPTemplateVersion"
+                        }
+                    }
+                ]
+            },
+            "Metadata": {
+                "Comment": "Internet gateway"
+            }
+        },
+        "IPHPY38PIPAttachementInetgw": {
+            "Type": "AWS::EC2::VPCGatewayAttachment",
+            "Properties": {
+                "InternetGatewayId": {
+                    "Ref": "IPHPY38PIPInetgw"
+                },
+                "VpcId": {
+                    "Ref": "IPHPY38PIPMainVPC"
+                }
+            },
+            "Metadata": {
+                "Comment": "Connection between Internet Gateway and Main VPC"
+            }
+        },
+        "IPHPY38PIPLinuxSubnetRouteTableAssociation": {
+            "Type": "AWS::EC2::SubnetRouteTableAssociation",
+            "Properties": {
+                "RouteTableId": {
+                    "Ref": "IPHPY38PIPLinuxRouteTable"
+                },
+                "SubnetId": {
+                    "Ref": "IPHPY38PIPLinuxSubnet"
+                }
+            },
+            "Metadata": {
+                "Comment": "Route Table for Linux Subnet"
+            }
+        },
+        "IPHPY38PIPDHCPOptions": {
+            "Type": "AWS::EC2::DHCPOptions",
+            "Properties": {
+                "Tags": [{
+                        "Key": "Name",
+                        "Value": "IPHPY38PIP_DHCPOptions"
+                    },
+                    {
+                        "Key": "Version",
+                        "Value": {
+                            "Ref": "IPHPY38PIPTemplateVersion"
+                        }
+                    }
+                ],
+                "DomainName": {
+                    "Fn::Sub": "${AWS::Region}.compute.internal"
+                },
+                "DomainNameServers": [
+                    "AmazonProvidedDNS"
+                ]
+            },
+            "Metadata": {
+                "Comment": "DHCP Settings"
+            }
+        },
+        "IPHPY38PIPVPCDHCPOptionsAssociation": {
+            "Type": "AWS::EC2::VPCDHCPOptionsAssociation",
+            "Properties": {
+                "DhcpOptionsId": {
+                    "Ref": "IPHPY38PIPDHCPOptions"
+                },
+                "VpcId": {
+                    "Ref": "IPHPY38PIPMainVPC"
+                }
+            },
+            "Metadata": {
+                "Comment": "Connection between DHCP settings and Main VPC"
+            }
+        }
+    },
+    "Outputs": {
+        "LinuxServerDNSname": {
+            "Description": "The DNS-name of the Linux server",
+            "Value": {
+                "Fn::GetAtt": [
+                    "IPHPY38PIPLinuxServer",
+                    "PublicDnsName"
+                ]
+            }
+        }
+    }
+}

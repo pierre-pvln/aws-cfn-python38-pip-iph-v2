@@ -1,0 +1,46 @@
+[
+  {
+    "ParameterKey": "IPHPY38PIPTemplateVersion",
+    "ParameterValue": "v021"
+  },
+  {
+    "ParameterKey": "IPHPY38PIPServerPrivateIP",
+    "ParameterValue": "10.0.1.5"
+  },
+  {
+    "ParameterKey": "IPHPY38PIPKeyName",
+    "ParameterValue": "aisdata-reporting"
+  },
+  {
+    "ParameterKey": "IPHPY38PIPInstanceType",
+    "ParameterValue": "t2.micro"
+  },
+  {
+    "ParameterKey": "IPHPY38PIPENVAWSProfileName",
+    "ParameterValue": ""
+  },
+  {
+    "ParameterKey": "IPHPY38PIPAWSjsonBucketName",
+    "ParameterValue": "ais-datasets-json"
+  },
+  {
+    "ParameterKey": "IPHPY38PIPAWScsvBucketName",
+    "ParameterValue": "ais-datasets-csv"
+  }, 
+  {
+    "ParameterKey": "IPHPY38PIPAWSpolygonsBucketName",
+    "ParameterValue": "ais-datasets-polygons"
+  },   
+  {
+    "ParameterKey": "IPHPY38PIPENVAWSSettingsBucketName",
+    "ParameterValue": "ais-datasets-csv"
+  },   
+  {
+    "ParameterKey": "IPHPY38PIPENVAWSSettingsPrefixFilename",
+    "ParameterValue": "settings/Born_iph.json"
+  },   
+  {
+    "ParameterKey": "IPHPY38PIPENVAPPDateType",
+    "ParameterValue": "leading0"
+  }   
+]
