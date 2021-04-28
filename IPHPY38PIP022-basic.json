@@ -141,10 +141,7 @@
                         "Action": ["sts:AssumeRole"]
                     }]
                 },
-                "Path": "/",
-				"ManagedPolicyArns": [
-					"arn:aws:iam::aws:policy/AWSCodeCommitPowerUser"
-				]
+                "Path": "/"				
             },
             "Metadata": {
                 "Comment": "Role die gekoppeld wordt aan EC2 instance"
@@ -164,7 +161,7 @@
                                 { "Fn::Sub": "arn:aws:s3:::${IPHPY38PIPAWSjsonBucketName}" },
                                 { "Fn::Sub": "arn:aws:s3:::${IPHPY38PIPAWScsvBucketName}" },
                                 { "Fn::Sub": "arn:aws:s3:::${IPHPY38PIPAWSpolygonsBucketName}" },
-								"arn:aws:s3:::iph-code-repository/json-to-csv/*"
+								"arn:aws:s3:::iph-code-repository"
                             ]
                         },
                         {
@@ -292,7 +289,7 @@
 								"#get packages and install\n",
                                 "sudo apt-get update\n",
                                 "sudo apt-get upgrade -y\n",
-                                "sudo apt-get install awscli jq -y\n",
+                                "sudo apt-get install awscli -y\n",
 								"wget -O /home/ubuntu/install.sh \"https://raw.githubusercontent.com/pierre-pvln/aws-cfn-python38-pip-iph-v2/master/install-IPHPY38PIP-boiler.sh\"\n",
                                 "chmod +x /home/ubuntu/*.sh\n",
                                 "/home/ubuntu/install.sh\n",

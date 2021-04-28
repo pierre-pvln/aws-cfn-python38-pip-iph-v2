@@ -9,10 +9,8 @@ su ubuntu
 
 # Python Install
 # ==============
-
 # get requirements.txt file from repository
-# get json file, select only fileContent part, remove quotes, decode base64 and save
-aws codecommit get-file --repository-name aws-cfn-iphpy38-pip --file-path requirements.txt --region eu-central-1 | jq .fileContent | tr -d '"'| base64 --decode >/home/ubuntu/requirements.txt
+wget -O /home/ubuntu/requirements.txt "https://raw.githubusercontent.com/pierre-pvln/aws-cfn-python38-pip-iph-v2/master/requirements.txt"
 
 echo [INFO ] Installing python ...
 sudo apt-get install python3-pip -y
