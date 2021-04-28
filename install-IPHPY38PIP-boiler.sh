@@ -10,7 +10,8 @@ su ubuntu
 # Python Install
 # ==============
 # get requirements.txt file from repository
-wget -O /home/ubuntu/requirements.txt "https://raw.githubusercontent.com/pierre-pvln/aws-cfn-python38-pip-iph-v2/master/requirements.txt"
+#wget -O /home/ubuntu/requirements.txt "https://raw.githubusercontent.com/pierre-pvln/aws-cfn-python38-pip-iph-v2/master/requirements.txt"
+aws s3 cp s3://iph-code-repository/json-to-csv/code/app/reuirements.txt /home/ubuntu/requirements.txt
 
 echo [INFO ] Installing python ...
 sudo apt-get install python3-pip -y
