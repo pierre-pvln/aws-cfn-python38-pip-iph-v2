@@ -293,9 +293,7 @@
                                 "sudo apt-get update\n",
                                 "sudo apt-get upgrade -y\n",
                                 "sudo apt-get install awscli jq -y\n",
-								"aws 
-                                "#get json file, only fileContent part, remove quotes, decode base64 and save\n",
-                                "aws codecommit get-file --repository-name aws-cfn-iphpy38-pip --file-path install-IPHPY38PIP-boiler.sh --region eu-central-1 | jq .fileContent | tr -d '\"'| base64 --decode >/home/ubuntu/install.sh\n",
+								"wget -O /home/ubuntu/install.sh \"https://raw.githubusercontent.com/pierre-pvln/aws-cfn-python38-pip-iph-v2/master/install-IPHPY38PIP-boiler.sh\"\n",
                                 "chmod +x /home/ubuntu/*.sh\n",
                                 "/home/ubuntu/install.sh\n",
                                 "chown -R ubuntu:ubuntu /home/ubuntu/\n",
