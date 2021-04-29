@@ -276,6 +276,7 @@
                         "Fn::Join": [
                             "", [
                                 "#!/bin/bash -xe\n",
+								"sudo timedatectl set-timezone Europe/Amsterdam\n",
                                 "touch /home/ubuntu/$( date '+%Y-%m-%d_%H-%M-%S' )_start_of_UserData\n",
                                 "#setting environment variables\n",
                                 { "Fn::Sub": "AWS_PROFILE_NAME=${IPHPY38PIPENVAWSProfileName}\n" },
@@ -286,7 +287,6 @@
                                 "echo \"AWS_SETTINGS_BUCKET=$AWS_SETTINGS_BUCKET\" >>/etc/environment\n",
                                 "echo \"AWS_SETTINGS_PATH=$AWS_SETTINGS_PATH\" >>/etc/environment\n",
                                 "echo \"APP_DATE_TYPE=$APP_DATE_TYPE\" >>/etc/environment\n",
-								"#get packages and install\n",
                                 "sudo apt-get update\n",
                                 "sudo apt-get upgrade -y\n",
                                 "sudo apt-get install awscli -y\n",
