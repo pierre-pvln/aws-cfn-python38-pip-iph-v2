@@ -13,7 +13,7 @@
   },
   {
     "ParameterKey": "IPHPY38PIPInstanceType",
-    "ParameterValue": "t2.micro"
+    "ParameterValue": "t2.small"
   },
   {
     "ParameterKey": "IPHPY38PIPENVAWSProfileName",
