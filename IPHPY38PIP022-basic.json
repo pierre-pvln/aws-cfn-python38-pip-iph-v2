@@ -184,6 +184,15 @@
                             "Resource": [
                                 { "Fn::Sub": "arn:aws:s3:::${IPHPY38PIPAWScsvBucketName}/*" }
                             ]
+                        },
+						                        {
+                            "Effect": "Allow",
+                            "Action": [
+                                "s3:DeleteObject"
+                            ],
+                            "Resource": [
+                                { "Fn::Sub": "arn:aws:s3:::${IPHPY38PIPAWScsvBucketName}/*" }
+                            ]
                         }
                     ]
                 },
