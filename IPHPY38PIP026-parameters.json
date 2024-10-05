@@ -1,7 +1,7 @@
 [
   {
     "ParameterKey": "IPHPY38PIPTemplateVersion",
-    "ParameterValue": "v021"
+    "ParameterValue": "v026"
   },
   {
     "ParameterKey": "IPHPY38PIPServerPrivateIP",
@@ -10,6 +10,10 @@
   {
     "ParameterKey": "IPHPY38PIPKeyName",
     "ParameterValue": "aisdata-reporting"
+  },
+  {
+    "ParameterKey": "IPHPY38PIPAmiID",
+    "ParameterValue": "/aws/service/canonical/ubuntu/server/focal/stable/current/amd64/hvm/ebs-gp2/ami-id"
   },
   {
     "ParameterKey": "IPHPY38PIPInstanceType",
@@ -30,11 +34,11 @@
   {
     "ParameterKey": "IPHPY38PIPAWSpolygonsBucketName",
     "ParameterValue": "ais-datasets-polygons"
-  },   
+  },
   {
     "ParameterKey": "IPHPY38PIPENVAWSSettingsBucketName",
     "ParameterValue": "ais-datasets-csv"
-  },   
+  },
   {
     "ParameterKey": "IPHPY38PIPENVAWSSettingsPrefixFilename",
     "ParameterValue": "settings/Born_iph.json"
@@ -42,5 +46,5 @@
   {
     "ParameterKey": "IPHPY38PIPENVAPPDateType",
     "ParameterValue": "leading0"
-  }   
+  }
 ]

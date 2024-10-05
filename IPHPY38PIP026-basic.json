@@ -4,7 +4,7 @@
     "Parameters": {
         "IPHPY38PIPTemplateVersion": {
             "Type": "String",
-            "Default": "v002",
+            "Default": "v026",
             "MinLength": "4",
             "MaxLength": "4",
             "Description": "Enter version number of template vXXX"
@@ -21,6 +21,12 @@
             "Type": "AWS::EC2::KeyPair::KeyName",
             "ConstraintDescription": "Must be the name of an existing EC2 KeyPair."
         },
+        "IPHPY38PIPAmiID": {
+           "Type": "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>",
+           "Description": "The ID of the AMI.",
+           "Default": "/aws/service/canonical/ubuntu/server/focal/stable/current/amd64/hvm/ebs-gp2/ami-id"
+        },
+
         "IPHPY38PIPInstanceType": {
             "Description": "Amazon EC2 instance type",
             "Type": "String",
@@ -270,6 +276,10 @@
                         "Value": {
                             "Ref": "IPHPY38PIPTemplateVersion"
                         }
+                    },
+                    {
+                        "Key": "CostCenter",
+                        "Value": "AIS-reports"
                     }
                 ],
                 "InstanceType": {
@@ -279,7 +289,7 @@
                     "Ref": "IPHPY38PIPKeyName"
                 },
                 "IamInstanceProfile": { "Ref": "IPHPY38PIPInstanceProfile" },
-                "ImageId": "ami-0b90a8636b6f955c1",
+				"ImageId" : { "Ref" : "IPHPY38PIPAmiID" },
                 "UserData": {
                     "Fn::Base64": {
                         "Fn::Join": [
@@ -349,9 +359,29 @@
                     "FromPort": "22",
                     "ToPort": "22",
                     "CidrIp": "86.81.35.18/32",
-                    "Description": "SSH direct from homenetwork"
+                    "Description": "SSH direct from homenetwork KPN ADSL"
+                },
+                    "IpProtocol": "tcp",
+                    "FromPort": "22",
+                    "ToPort": "22",
+                    "CidrIp": "195.240.91.108/32",
+					"Description": "SSH direct from homenetwork KPN glasvezel"
+                },
+				{
+                    "IpProtocol": "tcp",
+                    "FromPort": "22",
+                    "ToPort": "22",
+                    "CidrIp": "89.32.240.0/21",
+                    "Description": "SSH direct from TriNed NL-TRINED-20051129"
+                },
+				{
+                    "IpProtocol": "tcp",
+                    "FromPort": "22",
+                    "ToPort": "22",
+                    "CidrIp": "109.232.44.0/28",
+                    "Description": "SSH direct from Gemeente Stein IP subnet OpenLine"
                 }],
-                "VpcId": {
+				"VpcId": {
                     "Ref": "IPHPY38PIPMainVPC"
                 }
             },
