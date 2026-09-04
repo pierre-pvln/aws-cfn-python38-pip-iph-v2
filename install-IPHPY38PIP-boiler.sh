@@ -7,6 +7,10 @@ touch $(date '+%Y-%m-%d_%H-%M-%S')_start_of_install
 
 su ubuntu
 
+# Haal dynamisch de home-map van de 'ubuntu' gebruiker op
+TARGET_USER="ubuntu"
+USER_HOME=$(getent passwd "$TARGET_USER" | cut -d: -f6)
+
 # Python Install
 # ==============
 # get requirements.txt file from repository
@@ -30,14 +34,14 @@ PY_VERSION=$(python3 -c 'import sys; print(f"{sys.version_info.major}.{sys.versi
 echo "Detected Python ${PY_VERSION}"
  
 if [ "$PY_VERSION" = "3.12" ]; then
-    REQ_FILE="/home/ubuntu/requirements_py312.txt"
-    BLD_FILE="/home/ubuntu/as_build_py312.txt"
+    REQ_FILE="$USER_HOME/requirements_py312.txt"
+    BLD_FILE="$USER_HOME/as_build_py312.txt"
 elif [ "$PY_VERSION" = "3.8" ]; then
-    REQ_FILE="/home/ubuntu/requirements_py38.txt"
-    BLD_FILE="/home/ubuntu/as_build_py38.txt"
+    REQ_FILE="$USER_HOME/requirements_py38.txt"
+    BLD_FILE="$USER_HOME/as_build_py38.txt"
 else
-    REQ_FILE="/home/ubuntu/requirements.txt"
-    BLD_FILE="/home/ubuntu/as_build.txt"
+    REQ_FILE="$USER_HOME/requirements.txt"
+    BLD_FILE="$USER_HOME/as_build.txt"
 fi
 
 echo "Installing from ${REQ_FILE}"
