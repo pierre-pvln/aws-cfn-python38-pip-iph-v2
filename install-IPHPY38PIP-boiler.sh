@@ -23,9 +23,10 @@ aws s3 cp s3://iph-code-repository/json-to-csv/code/app/ /home/ubuntu/ --recursi
 echo [INFO ] Installing python ...
 sudo apt-get install python3-pip -y
 sudo apt-get install python3-venv -y
-python3 -m pip install --user --upgrade pip
+#python3 -m pip install --user --upgrade pip
 python3 -m venv env
 source env/bin/activate
+pip install --upgrade pip
 
 # Detect the Python minor version (e.g. "3.12", "3.8") and pick the matching
 # requirements file. Falls back to the generic requirements.txt for any
