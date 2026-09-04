@@ -11,7 +11,10 @@ su ubuntu
 # ==============
 # get requirements.txt file from repository
 #wget -O /home/ubuntu/requirements.txt "https://raw.githubusercontent.com/pierre-pvln/aws-cfn-python38-pip-iph-v2/master/requirements.txt"
-aws s3 cp s3://iph-code-repository/json-to-csv/code/app/requirements.txt /home/ubuntu/requirements.txt
+#aws s3 cp s3://iph-code-repository/json-to-csv/code/app/requirements.txt /home/ubuntu/requirements.txt
+
+# copy all the versions of the requirements file
+aws s3 cp s3://iph-code-repository/json-to-csv/code/app/ /home/ubuntu/ --recursive --exclude "*" --include "requirements*.txt"
 
 echo [INFO ] Installing python ...
 sudo apt-get install python3-pip -y
@@ -23,22 +26,22 @@ source env/bin/activate
 # Detect the Python minor version (e.g. "3.12", "3.8") and pick the matching
 # requirements file. Falls back to the generic requirements.txt for any
 # other version.
-PY_VERSION=$(python3 -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')
+PY_VERSION=$(python3 -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}".strip())')
+echo "Detected Python ${PY_VERSION}"
  
 if [ "$PY_VERSION" = "3.12" ]; then
-    REQ_FILE=/home/ubuntu/requirements_py312.txt
-    BLD_FILE=home/ubuntu/as_build_py312.txt
+    REQ_FILE="$HOME/requirements_py312.txt"
+    BLD_FILE="$HOME/as_build_py312.txt"
 elif [ "$PY_VERSION" = "3.8" ]; then
-    REQ_FILE=/home/ubuntu/requirements_py38.txt
-    BLD_FILE=home/ubuntu/as_build_py38.txt
+    REQ_FILE="$HOME/requirements_py38.txt"
+    BLD_FILE="$HOME/as_build_py38.txt"
 else
-    REQ_FILE=/home/ubuntu/requirements.txt
-    BLD_FILE=home/ubuntu/as_build.txt
+    REQ_FILE="$HOME/requirements.txt"
+    BLD_FILE="$HOME/as_build.txt"
 fi
 
-echo "Detected Python ${PY_VERSION}"
-echo " - installing from ${REQ_FILE}"
-echo " - saving package versions to ${BLD_FILE}"
+echo "Installing from ${REQ_FILE}"
+echo "Saving package versions to ${BLD_FILE}"
 python3 -m pip install -r "${REQ_FILE}"
 python3 -m pip freeze >"${BLD_FILE}"
 
